@@ -27,23 +27,25 @@ impl<'info> LogAction<'info> {
         location: Option<String>,
         proof: Option<String>,
     ) -> Result<()> {
-        if action_type.is_empty() {
-            return Err(GreenmoveError::InvalidAction.into());
+        match action_type.as_str() {
+            "" => return Err(GreenmoveError::InvalidAction.into()),
+            _ if action_type.len() > 256 => return Err(GreenmoveError::InvalidAction.into()),
+            _ => {}
         }
-        if action_type.len() > 256 {
-            return Err(GreenmoveError::InvalidAction.into());
+
+        match location {
+            Some(ref loc) if loc.len() > 50 => return Err(GreenmoveError::InvalidLocation.into()),
+            _ => {}
         }
-        if let Some(ref loc) = location
-        {
-            if loc.len() > 50 {
-                return Err(GreenmoveError::InvalidLocation.into());
-            }
+
+        match proof {
+            Some(ref prf) if prf.len() > 256 => return Err(GreenmoveError::InvalidProof.into()),
+            _ => {}
         }
-        if let Some(ref prf) = proof
-        {
-            if prf.len() > 256 {
-                return Err(GreenmoveError::InvalidProof.into());
-            }
+
+        match amount {
+            0 => return Err(GreenmoveError::InvalidAmount.into()),
+            _ => {}
         }
 
         self.action_log_account.set_inner(ActionLog {
