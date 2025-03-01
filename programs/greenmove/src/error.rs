@@ -18,9 +18,22 @@ pub enum GreenmoveError {
     InvalidDescription,
     #[msg("Invalid Conditions")]
     InvalidConditions,
-
-
-
+    #[msg("Invalid Quest Name")]
+    InvalidQuestName,
+    #[msg("Invalid Quest Description")]
+    InvalidQuestDescription,
+    #[msg("Invalid Quest Conditions")]
+    InvalidQuestConditions,
+    #[msg("Invalid Quest Rewards")]
+    InvalidQuestRewards,
+    #[msg("Invalid Quest Deadline")]
+    InvalidQuestDeadline,
+    #[msg("Invalid Quest Target Audience")]
+    InvalidQuestTargetAudience,
+    #[msg("User Already Joined")]
+    UserAlreadyJoined,
+    #[msg("Quest Full")]
+    QuestFull,
     #[msg("Quest Not Found")]
     QuestNotFound,
     #[msg("User Not Found")]

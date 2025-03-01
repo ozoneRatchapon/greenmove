@@ -20,7 +20,7 @@ impl<'info> GetUserHistory<'info> {
         let proof = log.proof.clone();
         let action_type = log.action_type.clone();
     
-        msg!("Transaction recorded: user={}, amount={}, action_type={}, timestamp={}, location={}, proof={}", user_pubkey, amount, log.action_type, timestamp, location.unwrap_or("None".to_string()), proof.unwrap_or("None".to_string()));
+        msg!("Transaction recorded: user={}, amount={}, action_type={}, timestamp={}, location={}, proof={}", user_pubkey, amount, action_type, timestamp, location.unwrap_or("None".to_string()), proof.unwrap_or("None".to_string()));
     
         Ok(())
     }

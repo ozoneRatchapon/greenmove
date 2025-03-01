@@ -80,9 +80,57 @@ describe("greenmove", () => {
     const conditions = "exampleConditions"; // Example conditions
     const deadline = new anchor.BN(Date.now() + 100000); // Example deadline
     const targetAudience = "exampleAudience"; // Example target audience
-    const tx = await program.methods.createQuest(questName, description, conditions, reward, deadline, targetAudience).rpc();
+
+    // Fetch the community leader account
+    const [communityLeaderPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("community_leader"),
+        anchor.AnchorProvider.env().wallet.publicKey.toBuffer(),
+        seed.toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    );
+
+    // Check if the community leader account exists
+    try {
+      await program.account.communityLeader.fetch(communityLeaderPda);
+    } catch (error) {
+      // If the community leader account does not exist, create it
+      const displayName = "exampleDisplayName"; // Example display name
+      const location = "Thailand"; // Example location
+      await program.methods.createCommunityLeader(seed, displayName, location).rpc();
+    }
+
+    // Allocate space for the quest account
+    const questAccount = anchor.web3.Keypair.generate();
+    const tx = await program.methods.createQuest(questName, description, conditions, reward, deadline, targetAudience)
+      .accounts({
+        quest: questAccount.publicKey,
+        communityLeader: communityLeaderPda,
+        user: anchor.AnchorProvider.env().wallet.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([questAccount])
+      .rpc();
     console.log("Your transaction signature", tx);
   });
 
-
+  it("user join quest", async () => {
+    // Add your test here.
+    const seed = new anchor.BN(1); // Example seed value
+    const [questPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("quest"),
+        seed.toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    );
+    const tx = await program.methods.joinQuest(questPda)
+      .accounts({
+        questAccount: questPda,
+        user: anchor.AnchorProvider.env().wallet.publicKey,
+      })
+      .rpc();
+    console.log("Your transaction signature", tx);
+  });
 });

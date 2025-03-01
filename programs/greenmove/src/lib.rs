@@ -53,8 +53,7 @@ pub mod greenmove {
         location: Option<String>,
         proof: Option<String>,
     ) -> Result<()> {
-        ctx.accounts
-            .log_action(action_type, amount, timestamp, location, proof)
+        ctx.accounts.log_action(action_type, amount, timestamp, location, proof)
     }
 
     pub fn get_user_history(ctx: Context<GetUserHistory>) -> Result<()> {
@@ -94,6 +93,10 @@ pub mod greenmove {
         )
     }
 
+    pub fn join_quest(ctx: Context<JoinQuest>, quest_pda: Pubkey) -> Result<()> {
+        ctx.accounts.join_quest(quest_pda)
+    }
+
     // pub fn get_quests(ctx: Context<GetQuests>) -> Result<()> {
     //     instructions::get_quests::handler(ctx)
     // }
@@ -102,9 +105,7 @@ pub mod greenmove {
     //     instructions::get_quest_details::handler(ctx, quest_pda)
     // }
 
-    // pub fn join_quest(ctx: Context<JoinQuest>, quest_pda: Pubkey) -> Result<()> {
-    //     instructions::join_quest::handler(ctx, quest_pda)
-    // }
+    
 
     // pub fn get_user_progress(ctx: Context<GetUserProgress>, quest_pda: Pubkey) -> Result<()> {
     //     instructions::get_user_progress::handler(ctx, quest_pda)

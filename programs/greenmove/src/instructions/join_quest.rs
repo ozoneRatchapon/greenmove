@@ -1,32 +1,49 @@
+use crate::error::GreenmoveError;
 use crate::state::{Quest, UserQuestMapping};
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::pubkey::Pubkey;
 
 #[derive(Accounts)]
 pub struct JoinQuest<'info> {
     #[account(mut)]
-    pub quest_account: Account<'info, Quest>,
-    #[account(init, payer = user, space = 8 + UserQuestMapping::LEN)]
-    pub user_quest_mapping: Account<'info, UserQuestMapping>,
-    #[account(mut)]
     pub user: Signer<'info>,
+    #[account(mut)]
+    pub quest_account: Account<'info, Quest>,
+    #[account(
+        init_if_needed,
+        payer = user,
+        space = 8 + UserQuestMapping::INIT_SPACE,
+        seeds = [b"user_quest_mapping", user.key().as_ref()],
+        bump,
+    )]
+    pub user_quest_mapping: Account<'info, UserQuestMapping>,
     pub system_program: Program<'info, System>,
-    pub quest_pda: Pubkey,
 }
 
-pub fn handler(ctx: Context<JoinQuest>, quest_pda: Pubkey) -> Result<()> {
-    let user_quest_mapping = &mut ctx.accounts.user_quest_mapping;
-    user_quest_mapping.user_pubkey = *ctx.accounts.user.key;
-    user_quest_mapping.quest_pda = quest_pda;
-    emit!(UserJoinedQuest {
-        user_pubkey: ctx.accounts.user.key(),
-        quest_pda,
-    });
-    Ok(())
-}
+impl<'info> JoinQuest<'info> {
+    pub fn join_quest(&mut self, quest_pda: Pubkey) -> Result<()> {
+        match () {
+            _ if self.quest_account.participants.len() >= self.quest_account.max_participants as usize => {
+                msg!("Quest is full. Current participants: {}, Max participants: {}", self.quest_account.participants.len(), self.quest_account.max_participants);
+                return Err(GreenmoveError::QuestFull.into());
+            },
+            _ if self.quest_account.participants.contains(&self.user.key()) => {
+                return Err(GreenmoveError::UserAlreadyJoined.into());
+            },
+            _ => (),
+        }
+        msg!("Joining quest with PDA: {:?}", quest_pda);
+        msg!("User pubkey: {:?}", self.user.key());
 
-#[event]
-pub struct UserJoinedQuest {
-    pub user_pubkey: Pubkey,
-    pub quest_pda: Pubkey,
+        self.user_quest_mapping.set_inner(UserQuestMapping {
+            user_pubkey: self.user.key(),
+            quest_pda,
+        });
+
+        msg!("UserQuestMapping set: {:?}", self.user_quest_mapping);
+
+        self.quest_account.participants.push(*self.user.key);
+        msg!("Updated quest participants: {:?}", self.quest_account.participants);
+
+        Ok(())
+    }
 }
