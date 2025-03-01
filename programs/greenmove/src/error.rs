@@ -14,9 +14,8 @@ pub enum GreenmoveError {
     InvalidDeadline,
     #[msg("Invalid Amount")]
     InvalidAmount,
-    
-    #[msg("Invalid Rewards")]
-    InvalidRewards,
+    #[msg("Invalid Rewards Type")]
+    InvalidRewardType,
     #[msg("Invalid Description")]
     InvalidDescription,
     #[msg("Invalid Conditions")]

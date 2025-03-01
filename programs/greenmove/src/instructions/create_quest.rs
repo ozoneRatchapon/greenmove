@@ -63,7 +63,7 @@ impl<'info> CreateQuest<'info> {
             },
             _ if rewards == 0 => {
                 msg!("Error: rewards is zero");
-                return Err(GreenmoveError::InvalidRewards.into());
+                return Err(GreenmoveError::InvalidAmount.into());
             },
             _ if deadline < 0 => {
                 msg!("Error: deadline is negative");

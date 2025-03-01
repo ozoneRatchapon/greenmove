@@ -115,6 +115,27 @@ describe("greenmove", () => {
     console.log("Your transaction signature", tx);
   });
 
+  it("deposit reward", async () => {
+    // Add your test here.
+    const seed = new anchor.BN(1); // Example seed value
+    const reward = new anchor.BN(100); // Example reward
+    const [questPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("quest"),
+        seed.toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    );
+    const rewardType = "exampleRewardType"; // Example reward type
+    const tx = await program.methods.depositRewards(reward, rewardType)
+      .accounts({
+        quest: questPda,
+        user: anchor.AnchorProvider.env().wallet.publicKey,
+      })
+      .rpc();
+    console.log("Your transaction signature", tx);
+  });
+
   it("user join quest", async () => {
     // Add your test here.
     const seed = new anchor.BN(1); // Example seed value
@@ -133,4 +154,6 @@ describe("greenmove", () => {
       .rpc();
     console.log("Your transaction signature", tx);
   });
+
+
 });

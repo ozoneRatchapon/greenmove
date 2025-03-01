@@ -1,11 +1,10 @@
 use anchor_lang::prelude::*;
 
 #[account]
+#[derive(InitSpace)]
 pub struct RewardPool {
     pub quest: Pubkey,
+    #[max_len(256)]
+    pub reward_type: String,
     pub balance: u64,
 }
-
-// impl RewardPool {
-//     pub const LEN: usize = 32 + 8 + 4 * 10; // Adjust size based on your needs
-// }

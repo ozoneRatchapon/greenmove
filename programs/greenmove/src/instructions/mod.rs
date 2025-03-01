@@ -2,7 +2,7 @@
 pub mod create_community_leader;
 pub mod create_quest;
 pub mod create_user;
-// pub mod deposit_rewards;
+pub mod deposit_rewards;
 // pub mod get_quest_details;
 // pub mod get_quests;
 pub mod get_user_history;
@@ -15,7 +15,7 @@ pub mod update_user_profile;
 pub use create_community_leader::*;
 pub use create_quest::*;
 pub use create_user::*;
-// pub use deposit_rewards::*;
+pub use deposit_rewards::*;
 // pub use get_quest_details::*;
 // pub use get_quests::*;
 pub use get_user_history::*;

@@ -53,7 +53,8 @@ pub mod greenmove {
         location: Option<String>,
         proof: Option<String>,
     ) -> Result<()> {
-        ctx.accounts.log_action(action_type, amount, timestamp, location, proof)
+        ctx.accounts
+            .log_action(action_type, amount, timestamp, location, proof)
     }
 
     pub fn get_user_history(ctx: Context<GetUserHistory>) -> Result<()> {
@@ -93,6 +94,14 @@ pub mod greenmove {
         )
     }
 
+    pub fn deposit_rewards(
+        ctx: Context<DepositRewards>,
+        reward_amount: u64,
+        reward_type: String,
+    ) -> Result<()> {
+        ctx.accounts.deposit_rewards(reward_amount, reward_type)
+    }
+
     pub fn join_quest(ctx: Context<JoinQuest>, quest_pda: Pubkey) -> Result<()> {
         ctx.accounts.join_quest(quest_pda)
     }
@@ -105,21 +114,11 @@ pub mod greenmove {
     //     instructions::get_quest_details::handler(ctx, quest_pda)
     // }
 
-    
-
     // pub fn get_user_progress(ctx: Context<GetUserProgress>, quest_pda: Pubkey) -> Result<()> {
     //     instructions::get_user_progress::handler(ctx, quest_pda)
     // }
 
     // pub fn claim_reward(ctx: Context<ClaimReward>, quest_pda: Pubkey) -> Result<()> {
     //     instructions::claim_reward::handler(ctx, quest_pda)
-    // }
-
-    // pub fn deposit_rewards(
-    //     ctx: Context<DepositRewards>,
-    //     reward_amount: u64,
-    //     reward_type: String,
-    // ) -> Result<()> {
-    //     instructions::deposit_rewards::handler(ctx, reward_amount, reward_type)
     // }
 }
