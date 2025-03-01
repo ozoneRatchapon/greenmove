@@ -52,24 +52,37 @@ describe("greenmove", () => {
     }
   });
 
-    it("get user history", async () => {
-      // Add your test here.
-      const seed = new anchor.BN(1); // Example seed value
-      const [userAccount, bump] = await anchor.web3.PublicKey.findProgramAddress(
-        [
-          anchor.utils.bytes.utf8.encode("user"),
-          anchor.AnchorProvider.env().wallet.publicKey.toBuffer(),
-          seed.toArrayLike(Buffer, "le", 8),
-        ],
-        program.programId
-      );
-      try {
-        const history = await program.account.actionLog.fetch(userAccount);
-        console.log("User history", history);
-      } catch (error) {
-        console.error("Error fetching user history:", error);
-      }
-    });
+  it("get user history", async () => {
+    // Add your test here.
+    const seed = new anchor.BN(1); // Example seed value
+    const [userAccount] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("user"),
+        anchor.AnchorProvider.env().wallet.publicKey.toBuffer(),
+        seed.toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    );
+    try {
+      const history = await program.account.actionLog.fetch(userAccount);
+      console.log("User history", history);
+    } catch (error) {
+      console.error("Error fetching user history:", error);
+    }
+  });
+
+  it("Community leader create quest", async () => {
+    // Add your test here.
+    const seed = new anchor.BN(1); // Example seed value
+    const questName = "exampleQuest"; // Example quest name
+    const description = "exampleDescription"; // Example description
+    const reward = new anchor.BN(100); // Example reward
+    const conditions = "exampleConditions"; // Example conditions
+    const deadline = new anchor.BN(Date.now() + 100000); // Example deadline
+    const targetAudience = "exampleAudience"; // Example target audience
+    const tx = await program.methods.createQuest(questName, description, conditions, reward, deadline, targetAudience).rpc();
+    console.log("Your transaction signature", tx);
+  });
 
 
 });

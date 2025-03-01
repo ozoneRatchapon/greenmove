@@ -10,6 +10,16 @@ pub enum GreenmoveError {
     BumpNotFound,
     #[msg("Invalid Action")]
     InvalidAction,
+    #[msg("Invalid Deadline")]
+    InvalidDeadline,
+    #[msg("Invalid Rewards")]
+    InvalidRewards,
+    #[msg("Invalid Description")]
+    InvalidDescription,
+    #[msg("Invalid Conditions")]
+    InvalidConditions,
+
+
 
     #[msg("Quest Not Found")]
     QuestNotFound,

@@ -58,7 +58,8 @@ pub mod greenmove {
     }
 
     pub fn get_user_history(ctx: Context<GetUserHistory>) -> Result<()> {
-        
+        // TODO:
+
         let log = &ctx.accounts.action_log_account;
         let user_pubkey = log.user_pubkey.to_string();
         let amount = log.amount;
@@ -72,25 +73,26 @@ pub mod greenmove {
         Ok(())
     }
 
-    // pub fn create_quest(
-    //     ctx: Context<CreateQuest>,
-    //     quest_name: String,
-    //     description: String,
-    //     conditions: Vec<String>,
-    //     rewards: Vec<String>,
-    //     deadline: i64,
-    //     target_audience: Option<String>,
-    // ) -> Result<()> {
-    //     instructions::create_quest::handler(
-    //         ctx,
-    //         quest_name,
-    //         description,
-    //         conditions,
-    //         rewards,
-    //         deadline,
-    //         target_audience,
-    //     )
-    // }
+    pub fn create_quest(
+        ctx: Context<CreateQuest>,
+        quest_name: String,
+        description: String,
+        conditions: String,
+        rewards: u64,
+        deadline: i64,
+        target_audience: Option<String>,
+    ) -> Result<()> {
+        msg!("Creating quest: name={}, description={}, conditions={}, rewards={:?}, deadline={}, target_audience={:?}", 
+            quest_name, description, conditions, rewards, deadline, target_audience);
+        ctx.accounts.create_quest(
+            quest_name,
+            description,
+            conditions,
+            rewards,
+            deadline,
+            target_audience,
+        )
+    }
 
     // pub fn get_quests(ctx: Context<GetQuests>) -> Result<()> {
     //     instructions::get_quests::handler(ctx)
