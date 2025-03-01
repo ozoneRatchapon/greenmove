@@ -84,23 +84,26 @@ pub mod greenmove {
     ) -> Result<()> {
         msg!("Creating quest: name={}, description={}, conditions={}, rewards={:?}, deadline={}, target_audience={:?}", 
             quest_name, description, conditions, rewards, deadline, target_audience);
+        
+        // Create the quest
         ctx.accounts.create_quest(
-            quest_name,
-            description,
-            conditions,
+            quest_name.clone(),
+            description.clone(),
+            conditions.clone(),
             rewards,
             deadline,
-            target_audience,
+            target_audience.clone(),
         )
     }
 
-    pub fn deposit_rewards(
-        ctx: Context<DepositRewards>,
-        reward_amount: u64,
-        reward_type: String,
-    ) -> Result<()> {
-        ctx.accounts.deposit_rewards(reward_amount, reward_type)
-    }
+    // pub fn deposit_rewards(
+    //     ctx: Context<CreateQuest>,
+    //     reward_amount: u64,
+    //     reward_type: String,
+    // ) -> Result<()> {
+    //     msg!("Depositing rewards: amount={}, type={}", reward_amount, reward_type);
+    //     ctx.accounts.deposit_rewards(reward_amount, reward_type)
+    // }
 
     pub fn join_quest(ctx: Context<JoinQuest>, quest_pda: Pubkey) -> Result<()> {
         ctx.accounts.join_quest(quest_pda)

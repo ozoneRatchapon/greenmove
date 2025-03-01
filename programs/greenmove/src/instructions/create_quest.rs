@@ -1,6 +1,10 @@
 use crate::error::GreenmoveError;
-use crate::state::{Quest, CommunityLeader};
+use crate::state::{Quest, CommunityLeader, RewardPool};
+// use crate::DepositRewards;
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::program::invoke;
+use anchor_lang::solana_program::system_instruction;
+
 #[derive(Accounts)]
 #[instruction(quest_name: String)]
 pub struct CreateQuest<'info> {
@@ -28,6 +32,22 @@ pub struct CreateQuest<'info> {
     #[account(seeds = [quest_account.key().as_ref()], bump)]
     pub quest_pda: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
+    // Add the CPI program account
+    // pub cpi_program: AccountInfo<'info>,
+
+    #[account(
+        init_if_needed,
+        payer = community_leader,
+        space = 8 + RewardPool::INIT_SPACE,
+        seeds = [b"reward_pool", quest_pda.key().as_ref()],
+        bump,
+    )]
+    pub reward_pool_account: Account<'info, RewardPool>,
+    // #[account(mut)]
+    // pub community_leader: Signer<'info>,
+    // #[account(mut)]
+    // pub quest: Account<'info, Quest>,
+    // pub system_program: Program<'info, System>,
 }
 
 impl<'info> CreateQuest<'info> {
@@ -98,7 +118,39 @@ impl<'info> CreateQuest<'info> {
         msg!("quest_account set with deadline: {}", deadline);
         msg!("quest_account set with target_audience: {:?}", target_audience);
 
+        msg!("Depositing rewards");
+        self.deposit_rewards( rewards, "initial_reward".to_string())?;
+        msg!("Rewards deposited");
+
         msg!("Quest created successfully");
+        Ok(())
+    }
+
+    pub fn deposit_rewards(
+        &mut self,
+        reward_amount: u64,
+        reward_type: String,
+    ) -> Result<()> {
+        // let reward_pool_account = &mut ctx.accounts.reward_pool_account;
+        // Logic to transfer the specified amount of rewards to the reward pool account and update the reward pool balance.
+        match reward_type.as_str() {
+            "" => return Err(GreenmoveError::InvalidRewardType.into()),
+            _ if reward_type.len() > 256 => return Err(GreenmoveError::InvalidRewardType.into()),
+            _ => {}
+        }
+
+        match reward_amount {
+            0 => return Err(GreenmoveError::InvalidAmount.into()),
+            _ => {}
+        }
+
+        self.reward_pool_account.set_inner(RewardPool {
+            quest: self.quest_account.key(),
+            reward_type,
+            balance: reward_amount,
+        });
+        
+
         Ok(())
     }
 }
