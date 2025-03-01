@@ -35,4 +35,22 @@ describe("greenmove", () => {
     console.log("Your transaction signature", tx);
   });
 
+  it("Log Action", async () => {
+    // Add your test here.
+
+    const actionType = "exampleAction"; // Example action
+    const amount = new anchor.BN(150); // Example amount
+    const timestamp = new anchor.BN(Date.now()); // Example timestamp
+    const location = "Thailand"; // Example location
+    const proof = "exampleProof"; // Example proof
+
+    try {
+      const tx = await program.methods.logAction(actionType, amount, timestamp, location, proof).rpc();
+      console.log("Your transaction signature", tx);
+    } catch (error) {
+      console.error("Error logging action:", error);
+    }
+  });
+
+
 });

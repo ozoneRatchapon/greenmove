@@ -8,6 +8,8 @@ pub enum GreenmoveError {
     InvalidLocation,
     #[msg("Bump Not Found")]
     BumpNotFound,
+    #[msg("Invalid Action")]
+    InvalidAction,
 
     #[msg("Quest Not Found")]
     QuestNotFound,

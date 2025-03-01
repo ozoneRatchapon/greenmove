@@ -42,6 +42,17 @@ pub mod greenmove {
         ctx.accounts.create_community_leader(seed, display_name, location, ctx.bumps)
     }
 
+    pub fn log_action(
+        ctx: Context<LogAction>,
+        action_type: String,
+        amount: u64,
+        timestamp: i64,
+        location: Option<String>,
+        proof: Option<String>,
+    ) -> Result<()> {
+        ctx.accounts.log_action(action_type, amount, timestamp, location, proof)
+    }
+
     // pub fn create_quest(
     //     ctx: Context<CreateQuest>,
     //     quest_name: String,
@@ -74,16 +85,7 @@ pub mod greenmove {
     //     instructions::join_quest::handler(ctx, quest_pda)
     // }
 
-    // pub fn log_action(
-    //     ctx: Context<LogAction>,
-    //     action_type: String,
-    //     amount: u64,
-    //     timestamp: i64,
-    //     location: Option<String>,
-    //     proof: Option<String>,
-    // ) -> Result<()> {
-    //     instructions::log_action::handler(ctx, action_type, amount, timestamp, location, proof)
-    // }
+    
 
     // pub fn get_user_progress(ctx: Context<GetUserProgress>, quest_pda: Pubkey) -> Result<()> {
     //     instructions::get_user_progress::handler(ctx, quest_pda)

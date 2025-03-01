@@ -7,7 +7,7 @@ pub mod create_user;
 // pub mod get_quests;
 // pub mod get_user_history;
 // pub mod join_quest;
-// pub mod log_action;
+pub mod log_action;
 pub mod update_user_profile;
 // pub mod update_quest;
 
@@ -20,6 +20,6 @@ pub use create_user::*;
 // pub use get_quests::*;
 // pub use get_user_history::*;
 // pub use join_quest::*;
-// pub use log_action::*;
+pub use log_action::*;
 pub use update_user_profile::*;
 // pub use update_quest::*;
