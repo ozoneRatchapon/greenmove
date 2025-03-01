@@ -12,7 +12,3 @@ pub struct UserAccountState {
     #[max_len(100)]
     pub location: Option<String>,
 }
-
-// impl UserAccount {
-//     pub const LEN: usize = 32 + 4 + 32 + 4 + 256; // Adjust size based on your needs
-// }

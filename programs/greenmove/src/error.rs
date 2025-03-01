@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use thiserror::Error;
 
 #[error_code]
 pub enum GreenmoveError {
@@ -7,6 +6,9 @@ pub enum GreenmoveError {
     InvalidDisplayName,
     #[msg("Invalid Location")]
     InvalidLocation,
+    #[msg("Bump Not Found")]
+    BumpNotFound,
+
     #[msg("Quest Not Found")]
     QuestNotFound,
     #[msg("User Not Found")]

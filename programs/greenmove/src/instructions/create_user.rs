@@ -20,32 +20,45 @@ pub struct CreateUser<'info> {
 }
 
 impl<'info> CreateUser<'info> {
+    /// Creates a new user account.
+    ///
+    /// # Arguments
+    ///
+    /// * `seed` - Seed used to derive the account.
+    /// * `bumps` - Bump seeds for the accounts.
+    /// * `ctx` - The context of the transaction.
+    /// * `display_name` - The display name of the user.
+    /// * `location` - The optional location of the user.
     pub fn create_user(
         &mut self,
-        bumps: CreateUserBumps,
-        ctx: Context<CreateUser>,
+        seed: u64,
         display_name: String,
         location: Option<String>,
+        bumps: CreateUserBumps,
     ) -> Result<()> {
+        // Validate display name
         if display_name.is_empty() {
             return Err(GreenmoveError::InvalidDisplayName.into());
         }
-        self.user_account_state.user_bump = bumps.user;
-        self.user_account_state.state_bump = bumps.user_account_state;
-        let user_account = &mut self.user_account_state;
-        user_account.user_pubkey = *ctx.accounts.user.key;
-        user_account.display_name = display_name;
-        user_account.location = location;
-        emit!(UserCreated {
-            user_pubkey: ctx.accounts.user.key(),
-            display_name: user_account.display_name.clone(),
+        if display_name.len() > 100 {
+            return Err(GreenmoveError::InvalidDisplayName.into());
+        }
+
+        // Validate location
+        if let Some(ref loc) = location {
+            if loc.len() > 100 {
+                return Err(GreenmoveError::InvalidLocation.into());
+            }
+        }
+
+        self.user_account_state.set_inner(UserAccountState {
+            seed,
+            user_bump: bumps.user,
+            state_bump: bumps.user_account_state,
+            user_pubkey: self.user.key(),
+            display_name,
+            location,
         });
         Ok(())
     }
-}
-
-#[event]
-pub struct UserCreated {
-    pub user_pubkey: Pubkey,
-    pub display_name: String,
 }

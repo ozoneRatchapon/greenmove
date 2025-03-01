@@ -10,15 +10,18 @@ use instructions::*;
 
 #[program]
 pub mod greenmove {
+    use crate::error::GreenmoveError;
+
     use super::*;
 
     pub fn create_user(
         ctx: Context<CreateUser>,
+        seed: u64,
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
         ctx.accounts
-            .create_user(CreateUserBumps, ctx, display_name, location)
+            .create_user(seed, display_name, location, ctx.bumps)
     }
 
     // pub fn update_user_profile(
