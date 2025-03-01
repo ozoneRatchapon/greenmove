@@ -8,9 +8,21 @@ describe("greenmove", () => {
 
   const program = anchor.workspace.Greenmove as Program<Greenmove>;
 
-  it("Is initialized!", async () => {
+  it("Creates a new account", async () => {
     // Add your test here.
-    const tx = await program.methods.initialize().rpc();
+    const seed = new anchor.BN(1); // Example seed value
+    const displayName = "exampleDisplayName"; // Example display name
+    const location = "Thailand"; // Example location
+    const tx = await program.methods.createUser(seed, displayName, location).rpc();
+    console.log("Your transaction signature", tx);
+  });
+
+  it("Updates an account", async () => {
+    // Add your test here.
+    const seed = new anchor.BN(1); // Example seed value
+    const displayName = "updatedDisplayName"; // Example display name
+    const location = "Thailand2"; // Example location
+    const tx = await program.methods.updateUserProfile(seed, displayName, location).rpc(); // Replace with the correct method name
     console.log("Your transaction signature", tx);
   });
 });

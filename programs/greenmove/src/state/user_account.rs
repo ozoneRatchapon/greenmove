@@ -7,7 +7,7 @@ pub struct UserAccountState {
     pub user_bump: u8,
     pub state_bump: u8,
     pub user_pubkey: Pubkey, // maker
-    #[max_len(100)]
+    #[max_len(50)]
     pub display_name: String,
     #[max_len(100)]
     pub location: Option<String>,

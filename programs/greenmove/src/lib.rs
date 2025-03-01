@@ -7,10 +7,11 @@ pub mod instructions;
 pub mod state;
 
 use instructions::*;
+// use error::GreenmoveError;
+// use state::UserAccountState;
 
 #[program]
 pub mod greenmove {
-    use crate::error::GreenmoveError;
 
     use super::*;
 
@@ -20,17 +21,17 @@ pub mod greenmove {
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
-        ctx.accounts
-            .create_user(seed, display_name, location, ctx.bumps)
+        ctx.accounts.create_user(seed, display_name, location, ctx.bumps)
     }
 
-    // pub fn update_user_profile(
-    //     ctx: Context<UpdateUserProfile>,
-    //     display_name: String,
-    //     location: String,
-    // ) -> Result<()> {
-    //     instructions::update_user_profile::handler(ctx, display_name, location)
-    // }
+    pub fn update_user_profile(
+        ctx: Context<UpdateUserProfile>,
+        seed: u64,
+        display_name: String,
+        location: Option<String>,
+    ) -> Result<()> {
+        ctx.accounts.update_user_profile(seed, display_name, location)
+    }
 
     // pub fn create_quest(
     //     ctx: Context<CreateQuest>,

@@ -1,36 +1,38 @@
 use crate::error::GreenmoveError;
-use crate::state::UserAccount;
+use crate::state::UserAccountState;
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct UpdateUserProfile<'info> {
-    #[account(mut, has_one = user_pubkey)]
-    pub user_account: Account<'info, UserAccount>,
-    pub user_pubkey: Signer<'info>,
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    #[account(mut,
+        seeds = [b"state", signer.key().as_ref()],
+        bump
+    )]
+    pub user_account_state: Account<'info, UserAccountState>,
+    pub system_program: Program<'info, System>,
 }
 
-pub fn handler(
-    ctx: Context<UpdateUserProfile>,
-    display_name: String,
-    location: String,
-) -> Result<()> {
-    if display_name.is_empty() {
-        return Err(GreenmoveError::InvalidDisplayName.into());
+impl<'info> UpdateUserProfile<'info> {
+    pub fn update_user_profile(
+        &mut self,
+        seed: u64,
+        display_name: String,
+        location: Option<String>,
+        // bumps: u8,
+    ) -> Result<()> {
+        if display_name.is_empty() {
+            return Err(GreenmoveError::InvalidDisplayName.into());
+        }
+        self.user_account_state.set_inner(UserAccountState {
+            seed,
+            user_bump: self.user_account_state.user_bump,
+            state_bump: self.user_account_state.state_bump,
+            user_pubkey: self.user_account_state.key(),
+            display_name,
+            location,
+        });
+        Ok(())
     }
-    let user_account = &mut ctx.accounts.user_account;
-    user_account.display_name = display_name;
-    user_account.location = Some(location);
-    emit!(UserProfileUpdated {
-        user_pubkey: *ctx.accounts.user_pubkey.key,
-        display_name: user_account.display_name.clone(),
-        location: user_account.location.clone(),
-    });
-    Ok(())
-}
-
-#[event]
-pub struct UserProfileUpdated {
-    pub user_pubkey: Pubkey,
-    pub display_name: String,
-    pub location: Option<String>,
 }
