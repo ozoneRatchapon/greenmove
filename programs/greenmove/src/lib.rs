@@ -21,7 +21,8 @@ pub mod greenmove {
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
-        ctx.accounts.create_user(seed, display_name, location, ctx.bumps)
+        ctx.accounts
+            .create_user(seed, display_name, location, ctx.bumps)
     }
 
     pub fn update_user_profile(
@@ -30,7 +31,8 @@ pub mod greenmove {
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
-        ctx.accounts.update_user_profile(seed, display_name, location)
+        ctx.accounts
+            .update_user_profile(seed, display_name, location)
     }
 
     pub fn create_community_leader(
@@ -39,7 +41,8 @@ pub mod greenmove {
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
-        ctx.accounts.create_community_leader(seed, display_name, location, ctx.bumps)
+        ctx.accounts
+            .create_community_leader(seed, display_name, location, ctx.bumps)
     }
 
     pub fn log_action(
@@ -50,7 +53,23 @@ pub mod greenmove {
         location: Option<String>,
         proof: Option<String>,
     ) -> Result<()> {
-        ctx.accounts.log_action(action_type, amount, timestamp, location, proof)
+        ctx.accounts
+            .log_action(action_type, amount, timestamp, location, proof)
+    }
+
+    pub fn get_user_history(ctx: Context<GetUserHistory>) -> Result<()> {
+        
+        let log = &ctx.accounts.action_log_account;
+        let user_pubkey = log.user_pubkey.to_string();
+        let amount = log.amount;
+        let timestamp = log.timestamp;
+        let location = log.location.clone();
+        let proof = log.proof.clone();
+        let action_type = log.action_type.clone();
+
+        msg!("Transaction recorded: user={}, amount={}, action_type={}, timestamp={}, location={}, proof={}", user_pubkey, amount, action_type, timestamp, location.unwrap_or("None".to_string()), proof.unwrap_or("None".to_string()));
+
+        Ok(())
     }
 
     // pub fn create_quest(
@@ -85,14 +104,8 @@ pub mod greenmove {
     //     instructions::join_quest::handler(ctx, quest_pda)
     // }
 
-    
-
     // pub fn get_user_progress(ctx: Context<GetUserProgress>, quest_pda: Pubkey) -> Result<()> {
     //     instructions::get_user_progress::handler(ctx, quest_pda)
-    // }
-
-    // pub fn get_user_history(ctx: Context<GetUserHistory>) -> Result<()> {
-    //     instructions::get_user_history::handler(ctx)
     // }
 
     // pub fn claim_reward(ctx: Context<ClaimReward>, quest_pda: Pubkey) -> Result<()> {
@@ -106,6 +119,4 @@ pub mod greenmove {
     // ) -> Result<()> {
     //     instructions::deposit_rewards::handler(ctx, reward_amount, reward_type)
     // }
-
-    
 }

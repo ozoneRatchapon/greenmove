@@ -7,9 +7,21 @@ pub struct GetUserHistory<'info> {
     pub action_log_account: Account<'info, ActionLog>,
     pub user_pubkey: Signer<'info>,
 }
-
-pub fn handler(ctx: Context<GetUserHistory>) -> Result<()> {
-    let action_log_account = &ctx.accounts.action_log_account;
-    // Logic to retrieve a list of all actions logged by the user and their completed quests.
-    Ok(())
+impl<'info> GetUserHistory<'info> {
+    pub fn get_user_history(
+        &mut self,
+        ctx: &Context<GetUserHistory>
+    ) -> Result<()> {
+        let log = &ctx.accounts.action_log_account;
+        let user_pubkey = log.user_pubkey.to_string();
+        let amount = log.amount;
+        let timestamp = log.timestamp;
+        let location = log.location.clone();
+        let proof = log.proof.clone();
+        let action_type = log.action_type.clone();
+    
+        msg!("Transaction recorded: user={}, amount={}, action_type={}, timestamp={}, location={}, proof={}", user_pubkey, amount, log.action_type, timestamp, location.unwrap_or("None".to_string()), proof.unwrap_or("None".to_string()));
+    
+        Ok(())
+    }
 }
