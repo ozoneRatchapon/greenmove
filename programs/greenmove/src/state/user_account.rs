@@ -9,6 +9,6 @@ pub struct UserAccountState {
     pub user_pubkey: Pubkey, // maker
     #[max_len(50)]
     pub display_name: String,
-    #[max_len(100)]
+    #[max_len(50)]
     pub location: Option<String>,
 }

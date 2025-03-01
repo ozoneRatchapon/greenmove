@@ -33,6 +33,15 @@ pub mod greenmove {
         ctx.accounts.update_user_profile(seed, display_name, location)
     }
 
+    pub fn create_community_leader(
+        ctx: Context<CreateCommunityLeader>,
+        seed: u64,
+        display_name: String,
+        location: Option<String>,
+    ) -> Result<()> {
+        ctx.accounts.create_community_leader(seed, display_name, location, ctx.bumps)
+    }
+
     // pub fn create_quest(
     //     ctx: Context<CreateQuest>,
     //     quest_name: String,
@@ -96,11 +105,5 @@ pub mod greenmove {
     //     instructions::deposit_rewards::handler(ctx, reward_amount, reward_type)
     // }
 
-    // pub fn create_community_leader(
-    //     ctx: Context<CreateCommunityLeader>,
-    //     display_name: String,
-    //     location: Option<String>,
-    // ) -> Result<()> {
-    //     instructions::create_community_leader::handler(ctx, display_name, location)
-    // }
+    
 }

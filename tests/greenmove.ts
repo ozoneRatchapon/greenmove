@@ -25,4 +25,14 @@ describe("greenmove", () => {
     const tx = await program.methods.updateUserProfile(seed, displayName, location).rpc(); // Replace with the correct method name
     console.log("Your transaction signature", tx);
   });
+
+  it("Creates a new community leader account", async () => {
+    // Add your test here.
+    const seed = new anchor.BN(1); // Example seed value
+    const displayName = "exampleDisplayName"; // Example display name
+    const location = "Thailand"; // Example location
+    const tx = await program.methods.createCommunityLeader(seed, displayName, location).rpc();
+    console.log("Your transaction signature", tx);
+  });
+
 });

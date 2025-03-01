@@ -4,36 +4,51 @@ use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct CreateCommunityLeader<'info> {
-    #[account(init, payer = user, space = 8 + CommunityLeader::LEN)]
-    pub community_leader_account: Account<'info, CommunityLeader>,
     #[account(mut)]
-    pub user: Signer<'info>,
+    pub signer_leader: Signer<'info>,
+    #[account(
+        init_if_needed,
+        payer = signer_leader,
+        space = 8 + CommunityLeader::INIT_SPACE,
+        seeds = [b"LeaderState", signer_leader.key().as_ref()],
+        bump,
+    )]
+    pub community_leader_account: Account<'info, CommunityLeader>,
+    #[account(seeds = [community_leader_account.key().as_ref()], bump)]
+    pub community_leader: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> CreateCommunityLeader<'info> {
-    pub fn handler(
-        ctx: Context<CreateCommunityLeader>,
+    pub fn create_community_leader(
+        &mut self,
+        seed: u64,
         display_name: String,
         location: Option<String>,
+        bumps: CreateCommunityLeaderBumps,
     ) -> Result<()> {
         if display_name.is_empty() {
             return Err(GreenmoveError::InvalidDisplayName.into());
         }
-        let community_leader_account = &mut ctx.accounts.community_leader_account;
-        community_leader_account.user_pubkey = *ctx.accounts.user.key;
-        community_leader_account.display_name = display_name;
-        community_leader_account.location = location;
-        emit!(CommunityLeaderCreated {
-            user_pubkey: ctx.accounts.user.key(),
-            display_name: community_leader_account.display_name.clone(),
+        if display_name.len() > 100 {
+            return Err(GreenmoveError::InvalidDisplayName.into());
+        }
+        if let Some(ref loc) = location
+        {
+            if loc.len() > 100 {
+                return Err(GreenmoveError::InvalidLocation.into());
+            }
+        }
+
+        self.community_leader_account.set_inner(CommunityLeader {
+            seed,
+            user_bump: bumps.community_leader,
+            state_bump: bumps.community_leader_account,
+            user_pubkey: self.community_leader.key(),
+            display_name,
+            location,
         });
+        
         Ok(())
     }
-}
-
-#[event]
-pub struct CommunityLeaderCreated {
-    pub user_pubkey: Pubkey,
-    pub display_name: String,
 }
