@@ -37,18 +37,15 @@ impl<'info> CreateUser<'info> {
         location: Option<String>,
         bumps: CreateUserBumps,
     ) -> Result<()> {
-        // Validate display name
-        if display_name.is_empty() {
-            return Err(GreenmoveError::InvalidDisplayName.into());
-        }
-        if display_name.len() > 100 {
-            return Err(GreenmoveError::InvalidDisplayName.into());
+        match display_name.len() {
+            0 => return Err(GreenmoveError::DisplayNameEmpty.into()),
+            len if len > 100 => return Err(GreenmoveError::DisplayNameTooLong.into()),
+            _ => {}
         }
 
-        // Validate location
         if let Some(ref loc) = location {
             if loc.len() > 100 {
-                return Err(GreenmoveError::InvalidLocation.into());
+            return Err(GreenmoveError::LocationTooLong.into());
             }
         }
 

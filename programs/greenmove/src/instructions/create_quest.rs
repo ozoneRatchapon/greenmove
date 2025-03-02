@@ -2,8 +2,6 @@ use crate::error::GreenmoveError;
 use crate::state::{Quest, CommunityLeader, RewardPool};
 // use crate::DepositRewards;
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::program::invoke;
-use anchor_lang::solana_program::system_instruction;
 
 #[derive(Accounts)]
 #[instruction(quest_name: String)]

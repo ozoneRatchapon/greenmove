@@ -22,7 +22,11 @@ pub mod greenmove {
         location: Option<String>,
     ) -> Result<()> {
         ctx.accounts
-            .create_user(seed, display_name, location, ctx.bumps)
+            .create_user(
+                seed,
+                 display_name, location
+                 , ctx.bumps
+                )
     }
 
     pub fn update_user_profile(

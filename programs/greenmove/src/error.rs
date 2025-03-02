@@ -6,6 +6,22 @@ pub enum GreenmoveError {
     InvalidDisplayName,
     #[msg("Invalid Location")]
     InvalidLocation,
+    #[msg("Invalid Reward Pool")]
+    InvalidRewardPool,
+    #[msg("Invalid Reward Pool Balance")]
+    InvalidRewardPoolBalance,
+    #[msg("Invalid Reward Pool Type")]
+    InvalidRewardPoolType,
+    #[msg("Invalid Reward Pool Quest")]
+    InvalidRewardPoolQuest,
+    #[msg("Invalid Reward Pool Account")]
+    InvalidRewardPoolAccount,
+    #[msg("Display Name Too Long")]
+    DisplayNameTooLong,
+    #[msg("Display Name Empty")]
+    DisplayNameEmpty,
+    #[msg("Location Too Long")]
+    LocationTooLong,
     #[msg("Bump Not Found")]
     BumpNotFound,
     #[msg("Invalid Action")]
