@@ -14,33 +14,25 @@ describe("greenmove", () => {
   const program = anchor.workspace.Greenmove as Program<Greenmove>;
   const provider = anchor.getProvider();
 
-  const user = anchor.web3.Keypair.generate();
+  // const user = anchor.web3.Keypair.generate();
   const signer = anchor.web3.Keypair.generate();
   const seed = new anchor.BN(randomBytes(8));
   const [user_account_state] = PublicKey.findProgramAddressSync(
     [
       Buffer.from("state"),
       signer.publicKey.toBuffer(),
-      seed.toArrayLike(Buffer, "le", 8),
+      // seed.toArrayLike(Buffer, "le", 8),
     ],
     program.programId
   );
+  const systemProgram = SystemProgram.programId;
 
   it("airdrop", async () => {
-    // let lamports = await getMinimumBalanceForRentExemption(
-    //   program.provider.connection,
-    //   0
-    // );
     let tx = new anchor.web3.Transaction();
     tx.instructions = [
       SystemProgram.transfer({
         fromPubkey: program.provider.publicKey,
         toPubkey: signer.publicKey,
-        lamports: 0.2 * LAMPORTS_PER_SOL,
-      }),
-      SystemProgram.transfer({
-        fromPubkey: program.provider.publicKey,
-        toPubkey: user.publicKey,
         lamports: 0.2 * LAMPORTS_PER_SOL,
       }),
       SystemProgram.transfer({
@@ -51,56 +43,74 @@ describe("greenmove", () => {
 
     ];
 
-    console.log({signer: signer.publicKey.toString(), user: user.publicKey.toString(), user_account_state: user_account_state.toString()});
-    await provider.sendAndConfirm(tx);
-    console.log("Your transaction signature", tx);
+    console.log({ signer: signer.publicKey.toString(), user_account_state: user_account_state.toString() });
+    const txSig = await provider.sendAndConfirm(tx);
+    console.log("Your transaction signature", txSig);
 
   });
 
-  it("Creates a new account", async () => {
+  it("Creates a new user account", async () => {
+
+    // Ensure accounts are initialized and valid before the test
+    assert.ok(signer.publicKey);
+    assert.ok(user_account_state);
+    assert.ok(systemProgram);
+
+    const displayName = "ozonesk"; // Example display name
+    const location = "Thailand"; // Example location
 
     const accounts = {
       signer: signer.publicKey,
-      user_account_state: user_account_state,
-      // user: user.publicKey,
+      userAccountState: user_account_state,
+      systemProgram: systemProgram,
+    };
+
+    try {
+      const tx = await program.methods
+        .createUser(seed, displayName, location)
+        .accounts({ ...accounts })
+        .signers([signer])
+        .rpc();
+      console.log("Your transaction signature", tx);
+
+      const account = await program.account.userAccountState.fetch(user_account_state); //Make sure that the account name matches the one in your program
+      // assert is used to check if the account is created successfully
+      assert.ok(account, "Account should exist");
+      console.log("Account", account);
+      assert.equal(account.displayName, displayName, "Display name should match");
+      assert.equal(account.location, location, "Location should match");
+
+    } catch (error) {
+      console.error("Transaction failed with error:", error);
+      assert.fail("Transaction should not have failed");
     }
-
-    const seed = new anchor.BN(1); // Example seed value
-    const displayName = "exampleDisplayName"; // Example display name
-    const location = "Thailand"; // Example location
-    const tx = await program.methods
-      .createUser(seed, displayName, location)
-      .accounts({ ...accounts })
-      .rpc()
-
-      .then(log);
-    console.log("Your transaction signature", tx);
-
-
-    // const account = await program.account.fetch(user_account_state);
-    // assert.equal(account.displayName, displayName);
-    // assert.equal(account.location, location);
   });
 
   it("Updates an account", async () => {
-    const seed = new anchor.BN(1); // Example seed value
-    const displayName = "updatedDisplayName"; // Example display name
+    const displayName = "ozonesk2"; // Example display name
     const location = "Thailand2"; // Example location
-    const tx = await program.methods.updateUserProfile(seed, displayName, location).rpc();
+
+    const accounts = {
+      signer: signer.publicKey,
+      userAccountState: user_account_state,
+    };
+
+    try {
+    const tx = await program.methods
+    .updateUserProfile(displayName, location)
+    .accounts({ ...accounts })
+    .signers([signer])
+    .rpc();
     console.log("Your transaction signature", tx);
 
-    const [userAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("user"),
-        anchor.AnchorProvider.env().wallet.publicKey.toBuffer(),
-        seed.toArrayLike(Buffer, "le", 8),
-      ],
-      program.programId
-    );
-
-    // const account = await program.account.user.fetch(userAccount);
-    // assert.equal(account.displayName, displayName);
-    // assert.equal(account.location, location);
+    const account = await program.account.userAccountState.fetch(user_account_state);
+    console.log("Update Account", account);
+    assert.equal(account.displayName, displayName);
+    assert.equal(account.location, location);
+    } catch (error) {
+      console.error("Error updating account:", error);
+      assert.fail("Transaction should not have failed");
+    }
   });
 
   it("Creates a new community leader account", async () => {

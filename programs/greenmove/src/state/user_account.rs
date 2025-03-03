@@ -4,7 +4,6 @@ use anchor_lang::prelude::*;
 #[derive(InitSpace)]
 pub struct UserAccountState {
     pub seed: u64, // seeds used to derive the account
-    pub user_bump: u8,
     pub state_bump: u8,
     pub user_pubkey: Pubkey, // maker
     #[max_len(50)]

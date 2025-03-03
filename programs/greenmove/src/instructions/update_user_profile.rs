@@ -17,19 +17,16 @@ pub struct UpdateUserProfile<'info> {
 impl<'info> UpdateUserProfile<'info> {
     pub fn update_user_profile(
         &mut self,
-        seed: u64,
         display_name: String,
         location: Option<String>,
-        // bumps: u8,
     ) -> Result<()> {
         if display_name.is_empty() {
             return Err(GreenmoveError::InvalidDisplayName.into());
         }
         self.user_account_state.set_inner(UserAccountState {
-            seed,
-            user_bump: self.user_account_state.user_bump,
+            seed: self.user_account_state.seed,
             state_bump: self.user_account_state.state_bump,
-            user_pubkey: self.user_account_state.key(),
+            user_pubkey: self.signer.key(),
             display_name,
             location,
         });

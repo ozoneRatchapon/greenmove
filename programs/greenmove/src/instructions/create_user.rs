@@ -15,8 +15,6 @@ pub struct CreateUser<'info> {
         bump,
     )]
     pub user_account_state: Account<'info, UserAccountState>,
-    #[account(seeds = [user_account_state.key().as_ref()], bump)]
-    pub user: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -51,9 +49,8 @@ impl<'info> CreateUser<'info> {
 
         self.user_account_state.set_inner(UserAccountState {
             seed,
-            user_bump: bumps.user,
             state_bump: bumps.user_account_state,
-            user_pubkey: self.user.key(),
+            user_pubkey: self.signer.key(),
             display_name,
             location,
         });

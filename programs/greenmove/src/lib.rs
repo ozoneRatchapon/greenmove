@@ -31,12 +31,12 @@ pub mod greenmove {
 
     pub fn update_user_profile(
         ctx: Context<UpdateUserProfile>,
-        seed: u64,
+        // seed: u64,
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
         ctx.accounts
-            .update_user_profile(seed, display_name, location)
+            .update_user_profile(display_name, location)
     }
 
     pub fn create_community_leader(
