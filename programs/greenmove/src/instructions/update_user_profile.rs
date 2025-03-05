@@ -24,7 +24,7 @@ impl<'info> UpdateUserProfile<'info> {
             return Err(GreenmoveError::InvalidDisplayName.into());
         }
         self.user_account_state.set_inner(UserAccountState {
-            seed: self.user_account_state.seed,
+            // seed: self.user_account_state.seed,
             state_bump: self.user_account_state.state_bump,
             user_pubkey: self.signer.key(),
             display_name,

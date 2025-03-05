@@ -17,13 +17,11 @@ pub mod greenmove {
 
     pub fn create_user(
         ctx: Context<CreateUser>,
-        seed: u64,
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
         ctx.accounts
             .create_user(
-                seed,
                  display_name, location
                  , ctx.bumps
                 )
@@ -41,12 +39,11 @@ pub mod greenmove {
 
     pub fn create_community_leader(
         ctx: Context<CreateCommunityLeader>,
-        seed: u64,
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
         ctx.accounts
-            .create_community_leader(seed, display_name, location, ctx.bumps)
+            .create_community_leader(display_name, location, ctx.bumps)
     }
 
     pub fn log_action(

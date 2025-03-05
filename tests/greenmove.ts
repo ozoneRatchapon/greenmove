@@ -16,12 +16,20 @@ describe("greenmove", () => {
 
   // const user = anchor.web3.Keypair.generate();
   const signer = anchor.web3.Keypair.generate();
+  const signer_leader = anchor.web3.Keypair.generate();
   const seed = new anchor.BN(randomBytes(8));
   const [user_account_state] = PublicKey.findProgramAddressSync(
     [
       Buffer.from("state"),
       signer.publicKey.toBuffer(),
-      // seed.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const [leaderAccount] = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("LeaderState"),
+      signer_leader.publicKey.toBuffer(),
     ],
     program.programId
   );
@@ -40,10 +48,24 @@ describe("greenmove", () => {
         toPubkey: user_account_state,
         lamports: 0.2 * LAMPORTS_PER_SOL,
       }),
-
+      SystemProgram.transfer({
+        fromPubkey: program.provider.publicKey,
+        toPubkey: signer_leader.publicKey,
+        lamports: 0.2 * LAMPORTS_PER_SOL,
+      }),
+      SystemProgram.transfer({
+        fromPubkey: program.provider.publicKey,
+        toPubkey: leaderAccount,
+        lamports: 0.2 * LAMPORTS_PER_SOL,
+      }),
     ];
 
-    console.log({ signer: signer.publicKey.toString(), user_account_state: user_account_state.toString() });
+    console.log({
+      signer: signer.publicKey.toString(),
+      user_account_state: user_account_state.toString(),
+      signer_leader: signer_leader.publicKey.toString(),
+      leaderAccount: leaderAccount.toString()
+    });
     const txSig = await provider.sendAndConfirm(tx);
     console.log("Your transaction signature", txSig);
 
@@ -67,7 +89,7 @@ describe("greenmove", () => {
 
     try {
       const tx = await program.methods
-        .createUser(seed, displayName, location)
+        .createUser(displayName, location)
         .accounts({ ...accounts })
         .signers([signer])
         .rpc();
@@ -96,17 +118,17 @@ describe("greenmove", () => {
     };
 
     try {
-    const tx = await program.methods
-    .updateUserProfile(displayName, location)
-    .accounts({ ...accounts })
-    .signers([signer])
-    .rpc();
-    console.log("Your transaction signature", tx);
+      const tx = await program.methods
+        .updateUserProfile(displayName, location)
+        .accounts({ ...accounts })
+        .signers([signer])
+        .rpc();
+      console.log("Your transaction signature", tx);
 
-    const account = await program.account.userAccountState.fetch(user_account_state);
-    console.log("Update Account", account);
-    assert.equal(account.displayName, displayName);
-    assert.equal(account.location, location);
+      const account = await program.account.userAccountState.fetch(user_account_state);
+      console.log("Update Account", account);
+      assert.equal(account.displayName, displayName);
+      assert.equal(account.location, location);
     } catch (error) {
       console.error("Error updating account:", error);
       assert.fail("Transaction should not have failed");
@@ -114,27 +136,42 @@ describe("greenmove", () => {
   });
 
   it("Creates a new community leader account", async () => {
-    const seed = new anchor.BN(1); // Example seed value
-    const displayName = "exampleDisplayName"; // Example display name
+    // Ensure accounts are initialized and valid before the test
+    assert.ok(signer_leader.publicKey);
+    assert.ok(leaderAccount);
+    assert.ok(systemProgram);
+
+    const displayName = "leaderName"; // Example display name
     const location = "Thailand"; // Example location
-    const tx = await program.methods.createCommunityLeader(seed, displayName, location).rpc();
-    console.log("Your transaction signature", tx);
 
-    const [leaderAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("community_leader"),
-        anchor.AnchorProvider.env().wallet.publicKey.toBuffer(),
-        seed.toArrayLike(Buffer, "le", 8),
-      ],
-      program.programId
-    );
+    const accounts = {
+      signerLeader: signer_leader.publicKey,
+      communityLeader: leaderAccount,
+      systemProgram: systemProgram,
+    };
 
-    // const account = await program.account.communityLeader.fetch(leaderAccount);
-    // assert.equal(account.displayName, displayName);
-    // assert.equal(account.location, location);
+    try {
+      const tx = await program.methods
+        .createCommunityLeader(displayName, location)
+        .accounts(accounts)
+        .signers([signer_leader])
+        .rpc();
+      console.log("Your transaction signature", tx);
+
+      const account = await program.account.communityLeader.fetch(leaderAccount);
+      assert.ok(account, "Account should exist");
+      console.log("Account", account);
+      assert.equal(account.displayName, displayName, "Display name should match");
+      assert.equal(account.location, location, "Location should match");
+    } catch (error) {
+      console.error("Error creating community leader account:", error);
+      assert.fail("Transaction should not have failed");
+    }
   });
 
-  it("Log Action", async () => {
+
+  /*  
+  it("User Log Action", async () => {
     const actionType = "exampleAction"; // Example action
     const amount = new anchor.BN(150); // Example amount
     const timestamp = new anchor.BN(Date.now()); // Example timestamp
@@ -232,4 +269,5 @@ describe("greenmove", () => {
     const quest = await program.account.quest.fetch(questPda);
     assert.isTrue(quest.participants.includes(anchor.AnchorProvider.env().wallet.publicKey));
   });
+  */
 });

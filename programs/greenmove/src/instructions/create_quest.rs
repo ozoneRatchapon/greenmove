@@ -11,7 +11,7 @@ pub struct CreateQuest<'info> {
     #[account(
         mut,
         seeds = [b"community_leader".as_ref()],
-        bump = community_leader.user_bump,
+        bump = community_leader.state_bump,
         constraint = signer.key() == community_leader.key() @ GreenmoveError::Unauthorized
     )]
     pub community_leader: Account<'info, CommunityLeader>,

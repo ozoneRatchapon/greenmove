@@ -14,15 +14,12 @@ pub struct CreateCommunityLeader<'info> {
         bump,
     )]
     pub community_leader_account: Account<'info, CommunityLeader>,
-    #[account(seeds = [community_leader_account.key().as_ref()], bump)]
-    pub community_leader: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> CreateCommunityLeader<'info> {
     pub fn create_community_leader(
         &mut self,
-        seed: u64,
         display_name: String,
         location: Option<String>,
         bumps: CreateCommunityLeaderBumps,
@@ -41,10 +38,8 @@ impl<'info> CreateCommunityLeader<'info> {
         }
 
         self.community_leader_account.set_inner(CommunityLeader {
-            seed,
-            user_bump: bumps.community_leader,
             state_bump: bumps.community_leader_account,
-            user_pubkey: self.community_leader.key(),
+            user_pubkey: self.signer_leader.key(),
             display_name,
             location,
         });

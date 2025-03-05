@@ -30,7 +30,7 @@ impl<'info> CreateUser<'info> {
     /// * `location` - The optional location of the user.
     pub fn create_user(
         &mut self,
-        seed: u64,
+        // seed: u64,
         display_name: String,
         location: Option<String>,
         bumps: CreateUserBumps,
@@ -48,7 +48,7 @@ impl<'info> CreateUser<'info> {
         }
 
         self.user_account_state.set_inner(UserAccountState {
-            seed,
+            // seed,
             state_bump: bumps.user_account_state,
             user_pubkey: self.signer.key(),
             display_name,
