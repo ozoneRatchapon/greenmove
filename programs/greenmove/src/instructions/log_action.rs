@@ -7,7 +7,7 @@ pub struct LogAction<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(
-        init,
+        init_if_needed,
         payer = user,
         space = 8 + ActionLog::INIT_SPACE,
         seeds = [b"action_log", user.key().as_ref()],

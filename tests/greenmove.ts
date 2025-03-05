@@ -33,6 +33,14 @@ describe("greenmove", () => {
     ],
     program.programId
   );
+
+  const [actionLogAccount] = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("action_log"),
+      signer.publicKey.toBuffer(),
+    ],
+    program.programId
+  );
   const systemProgram = SystemProgram.programId;
 
   it("airdrop", async () => {
@@ -58,13 +66,19 @@ describe("greenmove", () => {
         toPubkey: leaderAccount,
         lamports: 0.2 * LAMPORTS_PER_SOL,
       }),
+      // SystemProgram.transfer({
+      //   fromPubkey: program.provider.publicKey,
+      //   toPubkey: action_log_account,
+      //   lamports: 0.2 * LAMPORTS_PER_SOL,
+      // }),
     ];
 
     console.log({
       signer: signer.publicKey.toString(),
       user_account_state: user_account_state.toString(),
       signer_leader: signer_leader.publicKey.toString(),
-      leaderAccount: leaderAccount.toString()
+      leaderAccount: leaderAccount.toString(),
+      // action_log_account: action_log_account.toString(),
     });
     const txSig = await provider.sendAndConfirm(tx);
     console.log("Your transaction signature", txSig);
@@ -169,8 +183,7 @@ describe("greenmove", () => {
     }
   });
 
-
-  /*  
+   
   it("User Log Action", async () => {
     const actionType = "exampleAction"; // Example action
     const amount = new anchor.BN(150); // Example amount
@@ -178,20 +191,23 @@ describe("greenmove", () => {
     const location = "Thailand"; // Example location
     const proof = "exampleProof"; // Example proof
 
+    const accounts = {
+      user: signer.publicKey,
+      actionLogAccount: actionLogAccount,
+      systemProgram: SystemProgram.programId,
+    };
+
     try {
-      const tx = await program.methods.logAction(actionType, amount, timestamp, location, proof).rpc();
+      const tx = await program.methods
+      .logAction(actionType, amount, timestamp, location, proof)
+      .accounts(accounts)
+      .signers([signer])
+      .rpc();
       console.log("Your transaction signature", tx);
 
-      const [actionLogAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          anchor.utils.bytes.utf8.encode("action_log"),
-          anchor.AnchorProvider.env().wallet.publicKey.toBuffer(),
-          timestamp.toArrayLike(Buffer, "le", 8),
-        ],
-        program.programId
-      );
-
       const log = await program.account.actionLog.fetch(actionLogAccount);
+      assert.ok(log, "Log should exist");
+      console.log("Log", log);
       assert.equal(log.actionType, actionType);
       assert.equal(log.amount.toString(), amount.toString());
       assert.equal(log.location, location);
@@ -201,6 +217,8 @@ describe("greenmove", () => {
     }
   });
 
+
+  /*
   it("get user history", async () => {
     const seed = new anchor.BN(1); // Example seed value
     const [userAccount] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -219,7 +237,7 @@ describe("greenmove", () => {
       console.error("Error fetching user history:", error);
     }
   });
-
+ 
   it("Community leader create quest", async () => {
     const seed = new anchor.BN(1); // Example seed value
     const questName = "exampleQuest"; // Example quest name
