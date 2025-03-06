@@ -7,45 +7,36 @@ use anchor_lang::prelude::*;
 #[instruction(quest_name: String)]
 pub struct CreateQuest<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub signer_leader: Signer<'info>,
     #[account(
         mut,
-        seeds = [b"community_leader".as_ref()],
+        seeds = [b"LeaderState".as_ref(), signer_leader.key().as_ref()],
         bump = community_leader.state_bump,
-        constraint = signer.key() == community_leader.key() @ GreenmoveError::Unauthorized
+        constraint = signer_leader.key() == community_leader.user_pubkey @ GreenmoveError::Unauthorized
     )]
     pub community_leader: Account<'info, CommunityLeader>,
     #[account(
-        init_if_needed,
-        payer = signer,
+        init,
+        payer = signer_leader,
         space = 8 + Quest::INIT_SPACE,
         seeds = [
             b"quest".as_ref(),
-            community_leader.key().as_ref(),
+            signer_leader.key().as_ref(),
             quest_name.as_bytes()
         ],
         bump
     )]
     pub quest_account: Account<'info, Quest>,
-    #[account(seeds = [quest_account.key().as_ref()], bump)]
-    pub quest_pda: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
-    // Add the CPI program account
-    // pub cpi_program: AccountInfo<'info>,
 
     #[account(
         init_if_needed,
-        payer = community_leader,
+        payer = signer_leader,
         space = 8 + RewardPool::INIT_SPACE,
-        seeds = [b"reward_pool", quest_pda.key().as_ref()],
+        seeds = [b"reward_pool", signer_leader.key().as_ref()],
         bump,
     )]
     pub reward_pool_account: Account<'info, RewardPool>,
-    // #[account(mut)]
-    // pub community_leader: Signer<'info>,
-    // #[account(mut)]
-    // pub quest: Account<'info, Quest>,
-    // pub system_program: Program<'info, System>,
 }
 
 impl<'info> CreateQuest<'info> {

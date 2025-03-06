@@ -41,7 +41,26 @@ describe("greenmove", () => {
     ],
     program.programId
   );
+
+  const [questAccount] = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("quest"),
+      signer_leader.publicKey.toBuffer(),
+      Buffer.from("exampleQuest"),
+    ],
+    program.programId
+  );
+
+  const [rewardPoolAccount] = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("reward_pool"),
+      signer_leader.publicKey.toBuffer(),
+    ],
+    program.programId
+  );
+  
   const systemProgram = SystemProgram.programId;
+
 
   it("airdrop", async () => {
     let tx = new anchor.web3.Transaction();
@@ -51,21 +70,21 @@ describe("greenmove", () => {
         toPubkey: signer.publicKey,
         lamports: 0.2 * LAMPORTS_PER_SOL,
       }),
-      SystemProgram.transfer({
-        fromPubkey: program.provider.publicKey,
-        toPubkey: user_account_state,
-        lamports: 0.2 * LAMPORTS_PER_SOL,
-      }),
+      // SystemProgram.transfer({
+      //   fromPubkey: program.provider.publicKey,
+      //   toPubkey: user_account_state,
+      //   lamports: 0.2 * LAMPORTS_PER_SOL,
+      // }),
       SystemProgram.transfer({
         fromPubkey: program.provider.publicKey,
         toPubkey: signer_leader.publicKey,
-        lamports: 0.2 * LAMPORTS_PER_SOL,
+        lamports: 0.5 * LAMPORTS_PER_SOL,
       }),
-      SystemProgram.transfer({
-        fromPubkey: program.provider.publicKey,
-        toPubkey: leaderAccount,
-        lamports: 0.2 * LAMPORTS_PER_SOL,
-      }),
+      // SystemProgram.transfer({
+      //   fromPubkey: program.provider.publicKey,
+      //   toPubkey: leaderAccount,
+      //   lamports: 0.2 * LAMPORTS_PER_SOL,
+      // }),
       // SystemProgram.transfer({
       //   fromPubkey: program.provider.publicKey,
       //   toPubkey: action_log_account,
@@ -217,29 +236,19 @@ describe("greenmove", () => {
     }
   });
 
-
-  /*
   it("get user history", async () => {
-    const seed = new anchor.BN(1); // Example seed value
-    const [userAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("user"),
-        anchor.AnchorProvider.env().wallet.publicKey.toBuffer(),
-        seed.toArrayLike(Buffer, "le", 8),
-      ],
-      program.programId
-    );
+    
     try {
-      const history = await program.account.actionLog.fetch(userAccount);
-      console.log("User history", history);
+      const history = await program.account.actionLog.fetch(actionLogAccount);
+      assert.ok(history, "History should exist");
       assert.isNotNull(history);
+      console.log("User history", history);
     } catch (error) {
       console.error("Error fetching user history:", error);
     }
   });
  
   it("Community leader create quest", async () => {
-    const seed = new anchor.BN(1); // Example seed value
     const questName = "exampleQuest"; // Example quest name
     const description = "exampleDescription"; // Example description
     const reward = new anchor.BN(100); // Example reward
@@ -247,26 +256,22 @@ describe("greenmove", () => {
     const deadline = new anchor.BN(Date.now() + 100000); // Example deadline
     const targetAudience = "exampleAudience"; // Example target audience
 
-    const tx = await program.methods.createQuest(questName, description, conditions, reward, deadline, targetAudience).rpc();
+    const tx = await program.methods
+      .createQuest(questName, description, conditions, reward, deadline, targetAudience)
+      .accounts({
+        signerLeader: signer_leader.publicKey,
+        communityLeader: leaderAccount,
+        questAccount: questAccount,
+        rewardPoolAccount: rewardPoolAccount,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([signer_leader])
+      .rpc();
     console.log("Your transaction signature", tx);
-
-    const [questAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("quest"),
-        seed.toArrayLike(Buffer, "le", 8),
-      ],
-      program.programId
-    );
-
-    // const quest = await program.account.quest.fetch(questAccount);
-    // assert.equal(quest.name, questName);
-    // assert.equal(quest.description, description);
-    // assert.equal(quest.reward.toString(), reward.toString());
-    // assert.equal(quest.conditions, conditions);
-    // assert.equal(quest.deadline.toString(), deadline.toString());
-    // assert.equal(quest.targetAudience, targetAudience);
   });
 
+
+  /*
   it("user join quest", async () => {
     const seed = new anchor.BN(1); // Example seed value
     const [questPda] = anchor.web3.PublicKey.findProgramAddressSync(
