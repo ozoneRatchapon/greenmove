@@ -41,7 +41,7 @@ impl<'info> JoinQuest<'info> {
 
         msg!("UserQuestMapping set: {:?}", self.user_quest_mapping);
 
-        self.quest_account.participants.push(*self.user.key);
+        self.quest_account.participants.push(self.user.key());
         msg!("Updated quest participants: {:?}", self.quest_account.participants);
 
         Ok(())

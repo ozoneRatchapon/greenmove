@@ -19,26 +19,17 @@ describe("greenmove", () => {
   const signer_leader = anchor.web3.Keypair.generate();
   const seed = new anchor.BN(randomBytes(8));
   const [user_account_state] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("state"),
-      signer.publicKey.toBuffer(),
-    ],
+    [Buffer.from("state"), signer.publicKey.toBuffer()],
     program.programId
   );
 
   const [leaderAccount] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("LeaderState"),
-      signer_leader.publicKey.toBuffer(),
-    ],
+    [Buffer.from("LeaderState"), signer_leader.publicKey.toBuffer()],
     program.programId
   );
 
   const [actionLogAccount] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("action_log"),
-      signer.publicKey.toBuffer(),
-    ],
+    [Buffer.from("action_log"), signer.publicKey.toBuffer()],
     program.programId
   );
 
@@ -52,15 +43,11 @@ describe("greenmove", () => {
   );
 
   const [rewardPoolAccount] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("reward_pool"),
-      signer_leader.publicKey.toBuffer(),
-    ],
+    [Buffer.from("reward_pool"), signer_leader.publicKey.toBuffer()],
     program.programId
   );
-  
-  const systemProgram = SystemProgram.programId;
 
+  const systemProgram = SystemProgram.programId;
 
   it("airdrop", async () => {
     let tx = new anchor.web3.Transaction();
@@ -101,11 +88,9 @@ describe("greenmove", () => {
     });
     const txSig = await provider.sendAndConfirm(tx);
     console.log("Your transaction signature", txSig);
-
   });
 
   it("Creates a new user account", async () => {
-
     // Ensure accounts are initialized and valid before the test
     assert.ok(signer.publicKey);
     assert.ok(user_account_state);
@@ -128,13 +113,18 @@ describe("greenmove", () => {
         .rpc();
       console.log("Your transaction signature", tx);
 
-      const account = await program.account.userAccountState.fetch(user_account_state); //Make sure that the account name matches the one in your program
+      const account = await program.account.userAccountState.fetch(
+        user_account_state
+      ); //Make sure that the account name matches the one in your program
       // assert is used to check if the account is created successfully
       assert.ok(account, "Account should exist");
       console.log("Account", account);
-      assert.equal(account.displayName, displayName, "Display name should match");
+      assert.equal(
+        account.displayName,
+        displayName,
+        "Display name should match"
+      );
       assert.equal(account.location, location, "Location should match");
-
     } catch (error) {
       console.error("Transaction failed with error:", error);
       assert.fail("Transaction should not have failed");
@@ -158,7 +148,9 @@ describe("greenmove", () => {
         .rpc();
       console.log("Your transaction signature", tx);
 
-      const account = await program.account.userAccountState.fetch(user_account_state);
+      const account = await program.account.userAccountState.fetch(
+        user_account_state
+      );
       console.log("Update Account", account);
       assert.equal(account.displayName, displayName);
       assert.equal(account.location, location);
@@ -191,10 +183,16 @@ describe("greenmove", () => {
         .rpc();
       console.log("Your transaction signature", tx);
 
-      const account = await program.account.communityLeader.fetch(leaderAccount);
+      const account = await program.account.communityLeader.fetch(
+        leaderAccount
+      );
       assert.ok(account, "Account should exist");
       console.log("Account", account);
-      assert.equal(account.displayName, displayName, "Display name should match");
+      assert.equal(
+        account.displayName,
+        displayName,
+        "Display name should match"
+      );
       assert.equal(account.location, location, "Location should match");
     } catch (error) {
       console.error("Error creating community leader account:", error);
@@ -202,7 +200,6 @@ describe("greenmove", () => {
     }
   });
 
-   
   it("User Log Action", async () => {
     const actionType = "exampleAction"; // Example action
     const amount = new anchor.BN(150); // Example amount
@@ -218,10 +215,10 @@ describe("greenmove", () => {
 
     try {
       const tx = await program.methods
-      .logAction(actionType, amount, timestamp, location, proof)
-      .accounts(accounts)
-      .signers([signer])
-      .rpc();
+        .logAction(actionType, amount, timestamp, location, proof)
+        .accounts(accounts)
+        .signers([signer])
+        .rpc();
       console.log("Your transaction signature", tx);
 
       const log = await program.account.actionLog.fetch(actionLogAccount);
@@ -237,7 +234,6 @@ describe("greenmove", () => {
   });
 
   it("get user history", async () => {
-    
     try {
       const history = await program.account.actionLog.fetch(actionLogAccount);
       assert.ok(history, "History should exist");
@@ -247,7 +243,7 @@ describe("greenmove", () => {
       console.error("Error fetching user history:", error);
     }
   });
- 
+
   it("Community leader create quest", async () => {
     const questName = "exampleQuest"; // Example quest name
     const description = "exampleDescription"; // Example description
@@ -257,7 +253,14 @@ describe("greenmove", () => {
     const targetAudience = "exampleAudience"; // Example target audience
 
     const tx = await program.methods
-      .createQuest(questName, description, conditions, reward, deadline, targetAudience)
+      .createQuest(
+        questName,
+        description,
+        conditions,
+        reward,
+        deadline,
+        targetAudience
+      )
       .accounts({
         signerLeader: signer_leader.publicKey,
         communityLeader: leaderAccount,
@@ -268,29 +271,32 @@ describe("greenmove", () => {
       .signers([signer_leader])
       .rpc();
     console.log("Your transaction signature", tx);
+
+    const quest = await program.account.quest.fetch(questAccount);
+    console.log(quest);
+    assert.isTrue(quest.communityLeaderPubkey.equals(leaderAccount));
+    assert.equal(quest.questName, questName);
+    assert.equal(
+      quest.communityLeaderPubkey.toString(),
+      leaderAccount.toString()
+    );
   });
 
-
-  /*
   it("user join quest", async () => {
-    const seed = new anchor.BN(1); // Example seed value
-    const [questPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("quest"),
-        seed.toArrayLike(Buffer, "le", 8),
-      ],
-      program.programId
-    );
-    const tx = await program.methods.joinQuest(questPda)
+    const tx = await program.methods
+      .joinQuest(questAccount)
       .accounts({
-        questAccount: questPda,
-        user: anchor.AnchorProvider.env().wallet.publicKey,
+        user: signer.publicKey,
+        questAccount: questAccount,
       })
+      .signers([signer])
       .rpc();
     console.log("Your transaction signature", tx);
-
-    const quest = await program.account.quest.fetch(questPda);
-    assert.isTrue(quest.participants.includes(anchor.AnchorProvider.env().wallet.publicKey));
+    const quest = await program.account.quest.fetch(questAccount);
+    console.log(quest);
+    // Convert PublicKey to string for comparison since participants array likely stores string addresses
+    const participantAddresses = quest.participants.map(p => p.toString());
+    assert.isTrue(participantAddresses.includes(signer.publicKey.toString()), "Participant should be in quest participants list");
+    assert.equal(quest.participants.length, 1, "Quest should have exactly 1 participant");
   });
-  */
 });
