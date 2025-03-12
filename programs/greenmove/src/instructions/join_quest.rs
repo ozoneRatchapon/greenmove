@@ -12,7 +12,11 @@ pub struct JoinQuest<'info> {
         init_if_needed,
         payer = user,
         space = 8 + UserQuestMapping::INIT_SPACE,
-        seeds = [b"user_quest_mapping", user.key().as_ref()],
+        seeds = [
+            b"user_quest_mapping".as_ref(),
+            user.key().as_ref(),
+            quest_account.key().as_ref(),
+        ],
         bump,
     )]
     pub user_quest_mapping: Account<'info, UserQuestMapping>,
@@ -20,7 +24,11 @@ pub struct JoinQuest<'info> {
 }
 
 impl<'info> JoinQuest<'info> {
-    pub fn join_quest(&mut self, quest_pda: Pubkey) -> Result<()> {
+    pub fn join_quest(
+        &mut self,
+        quest_pda: Pubkey,
+        bumps: JoinQuestBumps,
+    ) -> Result<()> {
         match () {
             _ if self.quest_account.participants.len() >= self.quest_account.max_participants as usize => {
                 msg!("Quest is full. Current participants: {}, Max participants: {}", self.quest_account.participants.len(), self.quest_account.max_participants);
@@ -37,6 +45,11 @@ impl<'info> JoinQuest<'info> {
         self.user_quest_mapping.set_inner(UserQuestMapping {
             user_pubkey: self.user.key(),
             quest_pda,
+            is_completed: false,
+            is_rewarded: false,
+            timestamp: Clock::get()?.unix_timestamp,
+            rewards_claimed: 0,
+            bump: bumps.user_quest_mapping,
         });
 
         msg!("UserQuestMapping set: {:?}", self.user_quest_mapping);

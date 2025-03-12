@@ -299,4 +299,59 @@ describe("greenmove", () => {
     assert.isTrue(participantAddresses.includes(signer.publicKey.toString()), "Participant should be in quest participants list");
     assert.equal(quest.participants.length, 1, "Quest should have exactly 1 participant");
   });
+
+  // it("user cliam reward", async () => {
+  //   // Find PDA for user quest mapping first so it's available throughout the test
+  //   const [userQuestMapping] = PublicKey.findProgramAddressSync(
+  //     [
+  //       Buffer.from("user_quest_mapping"),
+  //       signer.publicKey.toBuffer(),
+  //       questAccount.toBuffer(),
+  //     ],
+  //     program.programId
+  //   );
+    
+  //   // Add quest status update before claiming
+  //   const updateTx = await program.methods
+  //     .updateQuestStatus(questAccount, true)
+  //     .accounts({
+  //       user: signer.publicKey,
+  //       questAccount: questAccount,
+  //       userQuestMapping: userQuestMapping,
+  //       systemProgram: SystemProgram.programId,
+  //       questPdaAccount: questAccount,
+  //     })
+  //     .signers([signer])
+  //     .rpc();
+  //   console.log("Quest status updated:", updateTx);
+
+  //   // Existing claim reward code
+  //   try {
+  //     const tx = await program.methods
+  //       .claimReward(questAccount)
+  //       .accounts({
+  //         user: signer.publicKey,
+  //         questAccount: questAccount,
+  //         rewardPoolAccount: rewardPoolAccount,
+  //         userQuestMapping: userQuestMapping,
+  //       })
+  //       .signers([signer])
+  //       .rpc();
+  //     console.log("Your transaction signature", tx);
+
+  //     const quest = await program.account.quest.fetch(questAccount);
+  //     console.log(quest);
+  //     const rewardPool = await program.account.rewardPool.fetch(rewardPoolAccount);
+  //     console.log(rewardPool);
+  //     // Convert PublicKey to string for comparison since participants array likely stores string addresses
+  //     const participantAddresses = quest.participants.map(p => p.toString());
+  //     assert.isTrue(participantAddresses.includes(signer.publicKey.toString()), "Participant should be in quest participants list");
+  //     assert.equal(quest.participants.length, 0, "Quest should have exactly 0 participant");
+      
+  //     assert.equal(quest.reward.toString(), "0", "Quest reward should be zero");
+  //   } catch (error) {
+  //     console.error("Error claiming reward:", error);
+  //   }
+
+  // });
 });

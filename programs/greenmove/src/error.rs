@@ -1,7 +1,16 @@
 use anchor_lang::prelude::*;
 
 #[error_code]
+// #[derive(AnchorDeserialize, AnchorSerialize)]
 pub enum GreenmoveError {
+    #[msg("Quest not completed")]
+    QuestNotCompleted,
+    #[msg("Unauthorized access")]
+    Unauthorized,
+    #[msg("Reward already claimed")]
+    RewardAlreadyClaimed,
+    #[msg("Account not found")]
+    AccountNotFound,
     #[msg("Invalid Display Name")]
     InvalidDisplayName,
     #[msg("Invalid Location")]
@@ -64,10 +73,8 @@ pub enum GreenmoveError {
     InvalidProof,
     #[msg("Quest Already Joined")]
     QuestAlreadyJoined,
-    #[msg("Quest Not Completed")]
-    QuestNotCompleted,
-    #[msg("Unauthorized")]
-    Unauthorized,
+    #[msg("User not joined quest")]
+    UserNotJoined,
 }
 
 impl From<GreenmoveError> for ProgramError {

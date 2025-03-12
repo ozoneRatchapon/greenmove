@@ -20,11 +20,7 @@ pub mod greenmove {
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
-        ctx.accounts
-            .create_user(
-                 display_name, location
-                 , ctx.bumps
-                )
+        ctx.accounts.create_user(display_name, location, ctx.bumps)
     }
 
     pub fn update_user_profile(
@@ -33,8 +29,7 @@ pub mod greenmove {
         display_name: String,
         location: Option<String>,
     ) -> Result<()> {
-        ctx.accounts
-            .update_user_profile(display_name, location)
+        ctx.accounts.update_user_profile(display_name, location)
     }
 
     pub fn create_community_leader(
@@ -83,9 +78,9 @@ pub mod greenmove {
         deadline: i64,
         target_audience: Option<String>,
     ) -> Result<()> {
-        msg!("Creating quest: name={}, description={}, conditions={}, rewards={:?}, deadline={}, target_audience={:?}", 
+        msg!("Creating quest: name={}, description={}, conditions={}, rewards={:?}, deadline={}, target_audience={:?}",
             quest_name, description, conditions, rewards, deadline, target_audience);
-        
+
         // Create the quest
         ctx.accounts.create_quest(
             quest_name.clone(),
@@ -107,7 +102,7 @@ pub mod greenmove {
     // }
 
     pub fn join_quest(ctx: Context<JoinQuest>, quest_pda: Pubkey) -> Result<()> {
-        ctx.accounts.join_quest(quest_pda)
+        ctx.accounts.join_quest(quest_pda, ctx.bumps)
     }
 
     // pub fn get_quests(ctx: Context<GetQuests>) -> Result<()> {
@@ -123,6 +118,14 @@ pub mod greenmove {
     // }
 
     // pub fn claim_reward(ctx: Context<ClaimReward>, quest_pda: Pubkey) -> Result<()> {
-    //     instructions::claim_reward::handler(ctx, quest_pda)
+    //     ctx.accounts.claim_reward(quest_pda)
+    // }
+
+    // pub fn update_quest_status(
+    //     ctx: Context<UpdateQuestStatus>,
+    //     quest_pda: Pubkey,
+    //     is_completed: bool,
+    // ) -> Result<()> {
+    //     ctx.accounts.update_quest_status(quest_pda, is_completed)
     // }
 }

@@ -9,7 +9,7 @@ pub mod get_user_history;
 pub mod join_quest;
 pub mod log_action;
 pub mod update_user_profile;
-// pub mod update_quest;
+// pub mod update_quest_status;
 
 // pub use claim_reward::*;
 pub use create_community_leader::*;
@@ -22,4 +22,4 @@ pub use get_user_history::*;
 pub use join_quest::*;
 pub use log_action::*;
 pub use update_user_profile::*;
-// pub use update_quest::*;
+// pub use update_quest_status::*;

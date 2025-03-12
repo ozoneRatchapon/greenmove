@@ -1,5 +1,5 @@
 use crate::error::GreenmoveError;
-use crate::state::{Quest, CommunityLeader, RewardPool};
+use crate::state::{CommunityLeader, Quest, RewardPool};
 // use crate::DepositRewards;
 use anchor_lang::prelude::*;
 
@@ -61,27 +61,27 @@ impl<'info> CreateQuest<'info> {
             _ if quest_name.is_empty() => {
                 msg!("Error: quest_name is empty");
                 return Err(GreenmoveError::InvalidDisplayName.into());
-            },
+            }
             _ if description.is_empty() => {
                 msg!("Error: description is empty");
                 return Err(GreenmoveError::InvalidDescription.into());
-            },
+            }
             _ if conditions.is_empty() => {
                 msg!("Error: conditions are empty");
                 return Err(GreenmoveError::InvalidConditions.into());
-            },
+            }
             _ if rewards == 0 => {
                 msg!("Error: rewards is zero");
                 return Err(GreenmoveError::InvalidAmount.into());
-            },
+            }
             _ if deadline < 0 => {
                 msg!("Error: deadline is negative");
                 return Err(GreenmoveError::InvalidDeadline.into());
-            },
+            }
             _ if quest_name.len() > 50 => {
                 msg!("Error: quest_name is too long");
                 return Err(GreenmoveError::InvalidDisplayName.into());
-            },
+            }
             _ => (),
         }
 
@@ -105,23 +105,20 @@ impl<'info> CreateQuest<'info> {
         msg!("quest_account set with conditions: {}", conditions);
         msg!("quest_account set with rewards: {}", rewards);
         msg!("quest_account set with deadline: {}", deadline);
-        msg!("quest_account set with target_audience: {:?}", target_audience);
+        msg!(
+            "quest_account set with target_audience: {:?}",
+            target_audience
+        );
 
         msg!("Depositing rewards");
-        self.deposit_rewards( rewards, "initial_reward".to_string())?;
+        self.deposit_rewards(rewards, "initial_reward".to_string())?;
         msg!("Rewards deposited");
 
         msg!("Quest created successfully");
         Ok(())
     }
 
-    pub fn deposit_rewards(
-        &mut self,
-        reward_amount: u64,
-        reward_type: String,
-    ) -> Result<()> {
-        // let reward_pool_account = &mut ctx.accounts.reward_pool_account;
-        // Logic to transfer the specified amount of rewards to the reward pool account and update the reward pool balance.
+    pub fn deposit_rewards(&mut self, reward_amount: u64, reward_type: String) -> Result<()> {
         match reward_type.as_str() {
             "" => return Err(GreenmoveError::InvalidRewardType.into()),
             _ if reward_type.len() > 256 => return Err(GreenmoveError::InvalidRewardType.into()),
@@ -133,13 +130,36 @@ impl<'info> CreateQuest<'info> {
             _ => {}
         }
 
+        // Get account info for the signer and reward pool
+        let signer_info = self.signer_leader.to_account_info();
+        let reward_pool_info = self.reward_pool_account.to_account_info();
+
+        // Calculate the amount needed for the reward pool (reward amount + rent exemption)
+        let rent = Rent::get()?;
+        let minimum_balance = rent.minimum_balance(reward_pool_info.data_len());
+
+        // Calculate the total amount needed (rewards + minimum balance for rent exemption)
+        let total_needed = reward_amount.saturating_add(minimum_balance);
+
+        // Check if signer has enough lamports
+        require!(
+            signer_info.lamports() >= total_needed,
+            GreenmoveError::InsufficientRewards
+        );
+
+        // Transfer lamports from signer to reward pool account
+        let transfer_amount = reward_amount;
+        **signer_info.try_borrow_mut_lamports()? -= transfer_amount;
+        **reward_pool_info.try_borrow_mut_lamports()? += transfer_amount;
+
+        // Set the reward pool data
         self.reward_pool_account.set_inner(RewardPool {
             quest: self.quest_account.key(),
             reward_type,
             balance: reward_amount,
         });
-        
 
+        msg!("Transferred {} lamports to reward pool", transfer_amount);
         Ok(())
     }
 }
